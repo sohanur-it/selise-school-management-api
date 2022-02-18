@@ -92,14 +92,21 @@ class TeacherDetails(GenericAPIView):
 
     def get(self, request, id, format=None):
         if request.user.is_admin or request.user.is_teacher:
-            teacher = Teacher.objects.get(id=id)
-            serializer = TeacherSerializer(teacher)
+            try:
+                teacher = Teacher.objects.get(id=id)
+                serializer = TeacherSerializer(teacher)
 
-            return Response({
-                "data": serializer.data,
-                "response_code": status.HTTP_200_OK,
-                "response_message": "success"
-            }, status=status.HTTP_200_OK)
+                return Response({
+                    "data": serializer.data,
+                    "response_code": status.HTTP_200_OK,
+                    "response_message": "success"
+                }, status=status.HTTP_200_OK)
+            except Exception:
+                return Response({
+                    "data": {},
+                    "response_code": status.HTTP_404_NOT_FOUND,
+                    "response_message": 'Not Found'
+                })
         else:
             return Response({
                 "data": {},
@@ -110,15 +117,22 @@ class TeacherDetails(GenericAPIView):
 
     def put(self, request, id, format=None):
         if request.user.is_admin:
-            teacher = Teacher.objects.get(id=id)
-            serializer = TeacherSerializer(teacher, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
+            try:
+                teacher = Teacher.objects.get(id=id)
+                serializer = TeacherSerializer(teacher, data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response({
+                        "data": serializer.data,
+                        "response_code": status.HTTP_200_OK,
+                        "response_message": "success"
+                    }, status=status.HTTP_200_OK)
+            except Exception:
                 return Response({
-                    "data": serializer.data,
-                    "response_code": status.HTTP_200_OK,
-                    "response_message": "success"
-                }, status=status.HTTP_200_OK)
+                    "data": {},
+                    "response_code": status.HTTP_404_NOT_FOUND,
+                    "response_message": 'Not Found'
+                })
             return Response({
                 "data": {},
                 "response_code": status.HTTP_400_BAD_REQUEST,
