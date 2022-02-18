@@ -7,7 +7,7 @@ User = get_user_model()
 # Create your models here.
 
 class Organisation(models.Model):
-    name = models.CharField(max_length=255, blank=True, null=True)
+    org_name = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name

@@ -170,14 +170,24 @@ class ClassDeatils(GenericAPIView):
 
     def get(self, request, id, format=None):
         if request.user.is_student:
-            teacher = ClassSchedule.objects.get(id=id)
-            serializer = self.get_serializer(teacher)
+            try:
+                teacher = ClassSchedule.objects.get(id=id)
+                serializer = self.get_serializer(teacher)
 
-            return Response({
-                "data": serializer.data,
-                "response_code": status.HTTP_200_OK,
-                "response_message": "success"
-            }, status=status.HTTP_200_OK)
+                return Response({
+                    "data": serializer.data,
+                    "response_code": status.HTTP_200_OK,
+                    "response_message": "success"
+                }, status=status.HTTP_200_OK)
+
+            except Exception:
+                return Response({
+                    "data": {},
+                    "response_code": status.HTTP_404_NOT_FOUND,
+                    "response_message": 'Not Found'
+                })
+
+
         else:
             return Response({
                 "data": {},
@@ -188,24 +198,50 @@ class ClassDeatils(GenericAPIView):
 
     def put(self, request, id, format=None):
         if request.user.is_teacher:
-            class_obj = ClassSchedule.objects.get(id=id)
-            serializer = self.get_serializer(class_obj, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
+            try:
+                class_obj = ClassSchedule.objects.get(id=id)
+                serializer = self.get_serializer(class_obj, data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response({
+                        "data": serializer.data,
+                        "response_code": status.HTTP_200_OK,
+                        "response_message": "success"
+                    }, status=status.HTTP_200_OK)
                 return Response({
-                    "data": serializer.data,
-                    "response_code": status.HTTP_200_OK,
-                    "response_message": "success"
-                }, status=status.HTTP_200_OK)
-            return Response({
-                "data": {},
-                "response_code": status.HTTP_400_BAD_REQUEST,
-                "response_message": serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+                    "data": {},
+                    "response_code": status.HTTP_400_BAD_REQUEST,
+                    "response_message": serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+            except Exception:
+                return Response({
+                    "data": {},
+                    "response_code": status.HTTP_404_NOT_FOUND,
+                    "response_message": 'Not Found'
+                })
+
         else:
             return Response({
                 "data": {},
                 "response_code": status.HTTP_401_UNAUTHORIZED,
                 "response_message": 'UNATHORIZED'
-
             })
+
+    def delete(self, request, id, format=None):
+        if request.user.is_teacher:
+            try:
+                class_obj = ClassSchedule.objects.get(id=id)
+                class_obj.delete()
+                return Response({
+                    "data": {},
+                    "response_code": status.HTTP_200_OK,
+                    "response_message": 'DELETED'
+                }, status=status.HTTP_200_OK)
+
+            except Exception:
+                return Response({
+                    "data": {},
+                    "response_code": status.HTTP_404_NOT_FOUND,
+                    "response_message": 'Not Found'
+
+                })

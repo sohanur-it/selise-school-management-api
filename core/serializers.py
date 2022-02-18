@@ -1,9 +1,17 @@
 from rest_framework import serializers
-from .models import Teacher, ClassSchedule, Organisation
+from .models import Teacher, ClassSchedule, Organisation, Student
 
 
 class PublicSerializer(serializers.Serializer):
-    name = serializers.CharField(required=False)
+    org_name = serializers.CharField(required=False)
+    total_teachers = serializers.SerializerMethodField()
+    total_student = serializers.SerializerMethodField()
+
+    def get_total_teachers(self, obj):
+        return Teacher.objects.all().count()
+
+    def get_total_student(self, obj):
+        return Student.objects.all().count()
 
     def create(self, validated_data):
         """Create a new organisation and return it"""
